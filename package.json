@@ -1,0 +1,27 @@
+{
+  "name": "Guardian",
+  "version": "1.0.0",
+  "description": "Guardian for PKC",
+  "main": "index.js",
+  "dependencies": {
+    "data-accounting-external-verifier": "git+https://git@github.com/inblockio/data-accounting-external-verifier.git",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inblockio/guardian.git"
+  },
+  "author": "",
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/inblockio/guardian/issues"
+  },
+  "homepage": "https://github.com/inblockio/guardian#readme",
+  "devDependencies": {
+    "prettier": "^2.4.1"
+  }
+}
