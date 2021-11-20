@@ -77,6 +77,7 @@ app.get("/verify_page", async (req, res) => {
   if (!req.query.hasOwnProperty("page_title")) {
     return res.status(400).send("page_title query param is required.")
   }
+  const accessToken = await getPersistedAccessTokenJSON()
   if (accessToken === null) {
     return res
       .status(400)
@@ -93,8 +94,13 @@ app.get("/verify_page", async (req, res) => {
     MWUrl,
     verbose,
     doLog,
-    doVerifyMerkleProof
+    doVerifyMerkleProof,
+    accessToken.token.access_token
   )
+  if (verificationStatus == "ERROR") {
+    res.send(details.error)
+    return
+  }
 
   const out = externalVerifier.formatPageInfo2HTML(
     MWUrl,
@@ -105,12 +111,19 @@ app.get("/verify_page", async (req, res) => {
   )
 
   console.log("Calling the write API to the PKC...")
-  const accessToken = await getPersistedAccessTokenJSON()
-  const writeResult = await fetch(MWUrl + "/rest.php/data_accounting/v1/store_guardian_page_verification", {
-    method: "POST",
-    headers: { 'Content-Type': 'application/json', 'Authorization': `${acessToken.token_type} ${accessToken.access_token}` },
-    body: JSON.stringify(body)
-  })
+  const body = {
+  }
+  const writeResult = await fetch(
+    MWUrl + "/rest.php/data_accounting/v1/store_guardian_page_verification",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${accessToken.token.token_type} ${accessToken.token.access_token}`,
+      },
+      body: JSON.stringify(body),
+    }
+  )
   console.log("writeResult", writeResult)
   res.send(out)
 })
