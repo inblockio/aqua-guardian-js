@@ -111,10 +111,11 @@ app.get("/verify_page", async (req, res) => {
   )
 
   console.log("Calling the write API to the PKC...")
+  // TODO
   const body = {
   }
   const writeResult = await fetch(
-    MWUrl + "/rest.php/data_accounting/v1/store_guardian_page_verification",
+    MWUrl + "/rest.php/data_accounting/v1/store_guardian_revision_verification",
     {
       method: "POST",
       headers: {
