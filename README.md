@@ -9,6 +9,8 @@
    ```
 1. Inside the PKC MediaWiki Docker (inside /var/www/html) run
    `openssl genrsa -out private.key 4096 && openssl rsa -in private.key -pubout -out public.key`
+   , change the ownership of both keys to www-data:www-data, and change the
+   permission of public.key using `chmod 600 public.key`
    (TODO: need better algorithm than `rsa`, but the one that is supported by
    JWT)
 1. In LocalSettings.php, add
@@ -22,8 +24,18 @@
    in their user profile. Since we have opted to use MetaMask login
    exclusively, we can no longer use Special:UserLogin.
 1. Go to the special page Special:OAuthConsumerRegistration/propose and create
-   an OAuth application. Make sure to choose OAuth2 and to add edit/move page
-   privilege.
+   an OAuth application. Make sure to choose OAuth2.
+   Make sure to enable these privileges
+   * Import revisions
+   * Edit the MediaWiki namespace and sitewide/user JSON
+   * Create, edit, and move pages
+   * Upload, replace, and move files
+   * Rollback changes to pages
+   * View deleted files and pages
+   * Delete pages, revisions, and log entries
+   * Create accounts
+   Make sure to DISABLE "This consumer is for use only by <wallet address>".
+   Specify the callback URL, e.g. http://localhost:8047/callback
 1. Edit index.js to set the client id/secret from the previous step.
 
 Note: we are required to generate and set up the private/public key manually
