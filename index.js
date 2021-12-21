@@ -15,8 +15,8 @@ const callbackUrl = ownUrl + "/callback"
 
 const OAuth2Client = new AuthorizationCode({
   client: {
-    id: "4776262dfe57356a902961677ed8667a",
-    secret: "9f71d734eb6290ced7ea258795ff3ee3e542873b",
+    id: "c67ab85d6d7c27fcb040ba71863cbf1a",
+    secret: "eac7276993b647e23db8e1ec1277245da8e98a00",
   },
   auth: {
     tokenHost: MWUrl,
@@ -87,13 +87,11 @@ app.get("/verify_page", async (req, res) => {
   }
   const page_title = req.query.page_title
   const verbose = false
-  const doLog = false
   const doVerifyMerkleProof = false
   const [verificationStatus, details] = await externalVerifier.verifyPage(
     page_title,
     MWUrl,
     verbose,
-    doLog,
     doVerifyMerkleProof,
     accessToken.token.access_token
   )
@@ -109,23 +107,35 @@ app.get("/verify_page", async (req, res) => {
     details,
     verbose
   )
+  const now = new Date()
+  // The month needs to be offset by 1 because it starts from 0 instead of 1.
+  const guardianTimestamp = `${now.getFullYear()}${now.getMonth() + 1}${now.getUTCDate()}${now.getUTCHours()}${now.getUTCMinutes()}${now.getUTCSeconds()}`
 
   console.log("Calling the write API to the PKC...")
-  // TODO
-  const body = {
-  }
-  const writeResult = await fetch(
-    MWUrl + "/rest.php/data_accounting/v1/store_guardian_revision_verification",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${accessToken.token.token_type} ${accessToken.token.access_token}`,
-      },
-      body: JSON.stringify(body),
+  for (const detail of details.revision_details) {
+    const body = {
+      verification_hash: detail.verification_hash,
+      status: detail.status,
+      guardian_timestamp: guardianTimestamp,
+      elapsed_time: '',
+      guardian_id: '',
+      request_hash: '',
+      reply_hash: '',
     }
-  )
-  console.log("writeResult", writeResult)
+    const writeResult = await fetch(
+      MWUrl + "/rest.php/data_accounting/v1/store_guardian_revision_verification",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${accessToken.token.token_type} ${accessToken.token.access_token}`,
+        },
+        body: JSON.stringify(body),
+      }
+    )
+    const resultContent = await writeResult.json()
+    console.log("writeResult", resultContent)
+  }
   res.send(out)
 })
 
